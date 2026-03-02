@@ -63,6 +63,13 @@ h1 {
   margin-bottom: 15px;
 }
 
+.admin-autor-post {
+  font-size: 14px;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 6px;
+}
+
 .admin-post a {
   color: #6f42c1;
   text-decoration: none;
@@ -166,9 +173,15 @@ h1 {
             + "</div>"
 
             + "<div class='admin-post'>"
+
+              + (item.autorPost 
+                  ? "<div class='admin-autor-post'>" + item.autorPost + "</div>" 
+                  : "")
+
               + "<a href='" + item.postId + "' target='_blank'>"
               + item.titulo
               + "</a>"
+
             + "</div>"
 
             + "<div class='admin-acoes'>";
