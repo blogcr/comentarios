@@ -59,14 +59,7 @@ h1 {
 }
 
 .admin-post {
-  font-size: 15px;
-  margin-bottom: 15px;
-}
-
-.admin-autor-post {
-  font-size: 14px;
-  font-weight: 600;
-  color: #444;
+  font-size: 16px;
   margin-bottom: 6px;
 }
 
@@ -80,8 +73,15 @@ h1 {
   text-decoration: underline;
 }
 
+.admin-autor-post {
+  font-size: 13px;
+  color: #888;
+  margin-top: 4px;
+}
+
 .admin-acoes {
   text-align: right;
+  margin-top: 12px;
 }
 
 .admin-acoes button {
@@ -173,16 +173,16 @@ h1 {
             + "</div>"
 
             + "<div class='admin-post'>"
-
-              + (item.autorPost 
-                  ? "<div class='admin-autor-post'>" + item.autorPost + "</div>" 
-                  : "")
-
               + "<a href='" + item.postId + "' target='_blank'>"
               + item.titulo
               + "</a>"
-
             + "</div>"
+
+            + (item.autorPost 
+                ? "<div class='admin-autor-post'>" 
+                  + item.autorPost + 
+                  "</div>"
+                : "")
 
             + "<div class='admin-acoes'>";
 
