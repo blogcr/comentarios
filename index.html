@@ -5,10 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Painel de Comentários</title>
 
-<!-- Fonte Arimo -->
 <link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;600;700&display=swap" rel="stylesheet">
-
-<!-- Favicon Comentários -->
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
 <style>
@@ -110,6 +107,34 @@ h1 {
   color: #aaa;
 }
 
+/* --- PAGINAÇÃO (acréscimo discreto) --- */
+
+.paginacao {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.paginacao button {
+  background: #f3f3f3;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  margin: 0 4px;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.paginacao button:hover {
+  background: #e8e8e8;
+}
+
+.paginacao button.ativo {
+  background: #6f42c1;
+  color: #fff;
+  border-color: #6f42c1;
+}
+
 @media (max-width: 600px) {
   .container {
     padding: 25px;
@@ -131,12 +156,16 @@ h1 {
 <div class="container">
   <h1 style="margin:0 auto">Comentários ALCR</h1>
   <div id="painelAdmin"></div>
+  <div id="paginacao" class="paginacao"></div>
 </div>
 
 <script>
 (function() {
 
   var adminURL = "https://script.google.com/macros/s/AKfycbxNRrY5FChcSaYwGaoCsuKso5cz1ATEfjn8ySlmK_V60lNlUWmLTQ8AsibNvKCYlFsX/exec?modo=admin";
+  var POR_PAGINA = 30;
+  var paginaAtual = 1;
+  var listaGlobal = [];
 
   function formatarData(dataISO) {
     var agora = new Date();
@@ -144,12 +173,10 @@ h1 {
     var diff = Math.floor((agora - data) / 1000);
 
     if (diff < 60) return "agora mesmo";
-
     if (diff < 3600) {
       var m = Math.floor(diff / 60);
       return "há " + m + (m === 1 ? " minuto" : " minutos");
     }
-
     if (diff < 86400) {
       var h = Math.floor(diff / 3600);
       return "há " + h + (h === 1 ? " hora" : " horas");
@@ -159,61 +186,88 @@ h1 {
            data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
   }
 
+  function renderizarPagina() {
+
+    var container = document.getElementById("painelAdmin");
+    var paginacao = document.getElementById("paginacao");
+
+    container.innerHTML = "";
+
+    var inicio = (paginaAtual - 1) * POR_PAGINA;
+    var fim = inicio + POR_PAGINA;
+    var pagina = listaGlobal.slice(inicio, fim);
+
+    pagina.forEach(function(item) {
+
+      var html = ""
+        + "<div class='admin-item'>"
+
+          + "<div class='admin-topo'>"
+            + "<strong>" + item.nome + "</strong>"
+            + "<span class='admin-data'>" + formatarData(item.data) + "</span>"
+          + "</div>"
+
+          + "<div class='admin-texto'>"
+            + item.comentario
+          + "</div>"
+
+          + "<div class='admin-post'>"
+            + "<a href='" + item.postId + "' target='_blank'>"
+            + item.titulo
+            + "</a>"
+          + "</div>"
+
+          + (item.autorPost 
+              ? "<div class='admin-autor-post'>texto de " + item.autorPost + "</div>"
+              : "")
+
+          + "<div class='admin-acoes'>";
+
+      if (item.ativo === true) {
+        html += "<button onclick='ocultar(" + item.linha + ")'>Ocultar</button>";
+      } else {
+        html += "<span class='oculto'>Oculto</span>";
+      }
+
+      html += "</div></div>";
+
+      container.insertAdjacentHTML("beforeend", html);
+
+    });
+
+    // renderizar navegação
+    var totalPaginas = Math.ceil(listaGlobal.length / POR_PAGINA);
+    paginacao.innerHTML = "";
+
+    for (var i = 1; i <= totalPaginas; i++) {
+      var btn = document.createElement("button");
+      btn.textContent = i;
+      if (i === paginaAtual) btn.classList.add("ativo");
+      btn.onclick = (function(numero) {
+        return function() {
+          paginaAtual = numero;
+          renderizarPagina();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        };
+      })(i);
+      paginacao.appendChild(btn);
+    }
+  }
+
   fetch(adminURL)
     .then(function(r) { return r.json(); })
     .then(function(lista) {
 
-      var container = document.getElementById("painelAdmin");
-
-      /* ORDEM DECRESCENTE — MAIS RECENTE PRIMEIRO */
+      // ORDEM DECRESCENTE — MAIS RECENTE PRIMEIRO
       lista.sort(function(a, b) {
         return new Date(b.data) - new Date(a.data);
       });
 
-      lista.forEach(function(item) {
-
-        var html = ""
-          + "<div class='admin-item'>"
-
-            + "<div class='admin-topo'>"
-              + "<strong>" + item.nome + "</strong>"
-              + "<span class='admin-data'>" + formatarData(item.data) + "</span>"
-            + "</div>"
-
-            + "<div class='admin-texto'>"
-              + item.comentario
-            + "</div>"
-
-            + "<div class='admin-post'>"
-              + "<a href='" + item.postId + "' target='_blank'>"
-              + item.titulo
-              + "</a>"
-            + "</div>"
-
-            + (item.autorPost 
-                ? "<div class='admin-autor-post'>"
-                  + "texto de " + item.autorPost +
-                  "</div>"
-                : "")
-
-            + "<div class='admin-acoes'>";
-
-        if (item.ativo === true) {
-          html += "<button onclick='ocultar(" + item.linha + ")'>Ocultar</button>";
-        } else {
-          html += "<span class='oculto'>Oculto</span>";
-        }
-
-        html += "</div></div>";
-
-        container.insertAdjacentHTML("beforeend", html);
-
-      });
-
+      listaGlobal = lista;
+      renderizarPagina();
     });
 
   window.ocultar = function(linha) {
-
     fetch("https://script.google.com/macros/s/AKfycbxNRrY5FChcSaYwGaoCsuKso5cz1ATEfjn8ySlmK_V60lNlUWmLTQ8AsibNvKCYlFsX/exec", {
       method: "POST",
       body: JSON.stringify({
@@ -224,7 +278,6 @@ h1 {
     .then(function() {
       location.reload();
     });
-
   };
 
 })();
