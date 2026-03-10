@@ -276,16 +276,13 @@ margin-bottom:20px;
 
   window.ocultar = function(linha) {
     fetch("https://script.google.com/macros/s/AKfycbxNRrY5FChcSaYwGaoCsuKso5cz1ATEfjn8ySlmK_V60lNlUWmLTQ8AsibNvKCYlFsX/exec", {
-      method: "POST",
-      body: JSON.stringify({
-        acao: "ocultar",
-        linha: linha
-      })
-    })
-    .then(function() {
-      location.reload();
-    });
-  };
+  method: "POST",
+  body: JSON.stringify({
+    acao: "ocultar",
+    linha: linha,
+    token: "split"
+  })
+})
 
 })();
 </script>
