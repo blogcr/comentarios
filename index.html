@@ -274,15 +274,21 @@ margin-bottom:20px;
       renderizarPagina();
     });
 
-  window.ocultar = function(linha) {
-    fetch("https://script.google.com/macros/s/AKfycbxNRrY5FChcSaYwGaoCsuKso5cz1ATEfjn8ySlmK_V60lNlUWmLTQ8AsibNvKCYlFsX/exec", {
-  method: "POST",
-  body: JSON.stringify({
-    acao: "ocultar",
-    linha: linha,
-    token: "9f7b3c2a8d4e6f1a5b9c0e7d3f8a2c6b"
+window.ocultar = function(linha) {
+
+  fetch("https://script.google.com/macros/s/AKfycbxNRrY5FChcSaYwGaoCsuKso5cz1ATEfjn8ySlmK_V60lNlUWmLTQ8AsibNvKCYlFsX/exec", {
+    method: "POST",
+    body: JSON.stringify({
+      acao: "ocultar",
+      linha: linha,
+      token: "9f7b3c2a8d4e6f1a5b9c0e7d3f8a2c6b"
+    })
   })
-})
+  .then(function() {
+    location.reload();
+  });
+
+};
 
 })();
 </script>
